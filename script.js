@@ -57,6 +57,7 @@
             const previousScene = currentScene;
             const isZoomForward = previousScene === 4 && scene === 5 && animate && !reducedMotion.matches;
             const isZoomBack = previousScene === 5 && scene === 4 && animate && !reducedMotion.matches;
+            const isFireTransition = previousScene === 13 && scene === 14 && animate && !reducedMotion.matches;
             const leavingLayers = document.querySelectorAll(`.story-art-${previousScene}, .story-frame-${previousScene}`);
             const incomingLayers = document.querySelectorAll(`.story-art-${scene}, .story-frame-${scene}`);
             leavingLayers.forEach((layer) => layer.classList.add('is-leaving'));
@@ -84,14 +85,15 @@
             const pageNumber = document.querySelector('.story-page-number');
             if (pageNumber) pageNumber.textContent = String(scene);
             document.body.className = document.body.className.replace(/\bstory-scene-\d+\b/g, '').replace(/\s+/g, ' ').trim();
-            document.body.classList.remove('zoom-4-5', 'zoom-5-4');
+            document.body.classList.remove('zoom-4-5', 'zoom-5-4', 'fire-13-14');
+            if (isFireTransition) document.body.classList.add('fire-13-14');
             if (isZoomForward) document.body.classList.add('zoom-4-5');
             if (isZoomBack) document.body.classList.add('zoom-5-4');
             if (scene > 1 && scene <= maxScene && !isZoomForward && !isZoomBack) document.body.classList.add(`story-scene-${scene}`);
             document.documentElement.classList.toggle('story-locked', scene >= 5);
             document.body.classList.toggle('story-full-motion', scene >= 5);
             document.body.classList.remove('burning');
-            document.body.classList.toggle('story-transitioning', animate && scene > 1 && !isZoomForward && !isZoomBack);
+            document.body.classList.toggle('story-transitioning', animate && scene > 1 && !isZoomForward && !isZoomBack && !isFireTransition);
             document.body.classList.toggle('home-to-story', animate && scene === 1);
             setPage('story', false);
             if (pushHistory) history.pushState({ pageId: `scene-${scene}` }, '', `#scene-${scene}`);
@@ -108,7 +110,7 @@
                 isAnimating = true;
                 window.setTimeout(() => {
                     isAnimating = false;
-                    document.body.classList.remove('story-transitioning', 'home-to-story', 'zoom-4-5', 'zoom-5-4');
+                    document.body.classList.remove('story-transitioning', 'home-to-story', 'zoom-4-5', 'zoom-5-4', 'fire-13-14');
                     if (currentScene >= 5) document.body.classList.add(`story-scene-${currentScene}`);
                     document.documentElement.classList.toggle('story-locked', currentScene >= 5);
                 }, SCENE_MS + 100);

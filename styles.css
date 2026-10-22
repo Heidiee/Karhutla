@@ -220,7 +220,9 @@
         body.story-scene-10,
         body.story-scene-11,
         body.story-scene-12,
-        body.story-scene-13 {
+        body.story-scene-13,
+        body.story-scene-14,
+        body.story-scene-15 {
             overflow: hidden;
             height: 100vh;
         }
@@ -262,6 +264,21 @@
 
         body.story-transitioning .story-world { 
             transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+        }
+
+        body.fire-13-14 #story {
+            background: #761415;
+        }
+
+        body.fire-13-14 .story-world {
+            opacity: 1;
+            transform: scale(1.03);
+            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+            will-change: transform;
+        }
+
+        body.fire-13-14 .story-banner {
+            opacity: 0;
         }
 
         body.zoom-4-5 .story-banner,
@@ -497,6 +514,20 @@
         body.story-scene-14 .story-camera { transform: translate(-1412px, -233px) scale(2.4); }
         body.story-scene-15 .story-camera { transform: translate(-36px, 0px) scale(1.5); }
         body.story-scene-14 .story-camera { transform: translate(-1000px, -233px) scale(2.874); }
+
+        body.story-scene-13 .story-world {
+            width: 1440px;
+            height: 1018px;
+            object-fit: fill;
+            object-position: 0 0;
+        }
+
+        body.story-scene-14 .story-world {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            object-position: center;
+        }
 
         .story-art-layer,
         .story-frame-layer,
