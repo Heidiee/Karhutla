@@ -1,4 +1,5 @@
         :root {
+            --scene-ms: 1200ms;
             color-scheme: dark;
             font-family: "Instrument Sans", sans-serif;
             font-synthesis: none;
@@ -211,6 +212,25 @@
             background: transparent;
         }
 
+        body.story-scene-5,
+        body.story-scene-6,
+        body.story-scene-7,
+        body.story-scene-8,
+        body.story-scene-9,
+        body.story-scene-10,
+        body.story-scene-11,
+        body.story-scene-12,
+        body.story-scene-13 {
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        html.story-locked,
+        html.story-locked body {
+            overflow: hidden;
+            height: 100%;
+        }
+
         .story-canvas {
             position: relative;
             left: 50%;
@@ -223,9 +243,249 @@
         .story-camera {
             position: absolute;
             inset: 0;
+            transform-origin: 0 0;
+            will-change: transform;
+            transition: transform 1.2s cubic-bezier(0.55, 0, 0.45, 1);
+        }
+
+        .story-banner {
+            transition: opacity 0.35s ease-in-out;
+        }
+
+        body.story-transitioning .story-banner {
+            opacity: 1;
+        }
+
+        body.story-transitioning .story-world { 
+            opacity: 1;
+        }
+
+        body.story-transitioning .story-world { 
+            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+        }
+
+        body.zoom-4-5 .story-banner,
+        body.zoom-5-4 .story-banner {
+            opacity: 0;
+        }
+
+        body.story-full-motion:not(.story-transitioning) .story-banner {
+            opacity: 1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .story-camera,
+            .story-banner,
+            .story-art,
+            .story-frame {
+                transition: none !important;
+            }
+        }
+
+        body.zoom-4-5 .story-art-layer,
+        body.zoom-4-5 .story-frame-layer {
+            display: block;
+        }
+
+        body.zoom-4-5 .story-world {
+            display: none;
+        }
+
+        body.zoom-4-5 .story-art-4,
+        body.zoom-4-5 .story-frame-4 {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1;
+            z-index: 2;
+        }
+
+        body.zoom-4-5 .story-camera {
+            transform: scale(1.233);
             transform-origin: 720px 512px;
+            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
             will-change: transform;
         }
+
+        body.zoom-4-5 .story-frame-4 {
+            animation: frame-open var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1) both;
+            will-change: opacity;
+        }
+
+        body.zoom-4-5 .story-banner {
+            opacity: 0 !important;
+            transition: opacity 180ms ease-out;
+        }
+
+        body.zoom-5-4 .story-art-layer,
+        body.zoom-5-4 .story-frame-layer {
+            display: block;
+        }
+
+        body.zoom-5-4 .story-world {
+            display: block;
+            opacity: 0;
+        }
+
+        body.zoom-5-4 .story-art-4,
+        body.zoom-5-4 .story-frame-4 {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1;
+            z-index: 2;
+        }
+
+        body.zoom-5-4 .story-camera {
+            transform: scale(1);
+            transform-origin: 720px 512px;
+            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+            will-change: transform;
+        }
+
+        body.zoom-5-4 .story-frame-4 {
+            animation: frame-reveal var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1) both;
+            will-change: opacity;
+        }
+
+        body.zoom-5-4 .story-banner {
+            opacity: 0 !important;
+        }
+
+        @keyframes frame-open {
+            0%, 40% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes frame-reveal {
+            0% { opacity: 0; }
+            60%, 100% { opacity: 1; }
+        }
+
+        .story-art-layer,
+        .story-frame-layer,
+        .burn-layer {
+            position: absolute;
+            inset: 0;
+        }
+
+        .scene7-smoke {
+            display: none;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        .scene7-smoke img {
+            display: block;
+            position: absolute;
+            object-fit: fill;
+        }
+
+        .scene7-smoke-1 {
+            top: 530px;
+            left: 1100px;
+            width: 72px;
+            height: 337px;
+        }
+
+        .scene7-smoke-2 {
+            top: 722px;
+            left: 1150px;
+            width: 79px;
+            height: 190px;
+        }
+
+        .scene7-smoke-3 {
+            top: 663px;
+            left: 1200px;
+            width: 38px;
+            height: 225px;
+        }
+
+        body.story-scene-7 .scene7-smoke {
+            display: block;
+            opacity: 1;
+        }
+
+        body.story-transitioning .scene7-smoke {
+            opacity: 0;
+        }
+
+        .story-world {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1440px;
+            height: 1018px;
+            object-fit: fill;
+            object-position: 0 0;
+            transform-origin: 0 0;
+            z-index: 1;
+            will-change: transform;
+        }
+
+        body.story-scene-5 .story-world,
+        body.story-scene-6 .story-world,
+        body.story-scene-7 .story-world,
+        body.story-scene-8 .story-world,
+        body.story-scene-9 .story-world,
+        body.story-scene-10 .story-world,
+        body.story-scene-11 .story-world,
+        body.story-scene-12 .story-world,
+        body.story-scene-13 .story-world {
+            display: block;
+        }
+
+        body.story-scene-5 .story-art-layer,
+        body.story-scene-6 .story-art-layer,
+        body.story-scene-7 .story-art-layer,
+        body.story-scene-8 .story-art-layer,
+        body.story-scene-9 .story-art-layer,
+        body.story-scene-10 .story-art-layer,
+        body.story-scene-11 .story-art-layer,
+        body.story-scene-12 .story-art-layer,
+        body.story-scene-13 .story-art-layer {
+            display: none;
+        }
+
+        body.story-scene-5 .story-canvas {
+            width: 100vw;
+        }
+
+        body.story-scene-5 .story-world {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        body.story-scene-5 .story-camera,
+        body.story-scene-6 .story-camera,
+        body.story-scene-7 .story-camera,
+        body.story-scene-8 .story-camera,
+        body.story-scene-9 .story-camera,
+        body.story-scene-10 .story-camera,
+        body.story-scene-11 .story-camera,
+        body.story-scene-12 .story-camera,
+        body.story-scene-13 .story-camera {
+            transform: translate(0px, 0px) scale(1.005);
+        }
+
+        body.story-scene-6 .story-camera { transform: translate(-1px, -980px) scale(1.777); }
+        body.story-scene-7 .story-camera { transform: translate(-1000px, -980px) scale(1.777); }
+        body.story-scene-8 .story-camera { transform: translate(-673px, -170px) scale(1.777); }
+        body.story-scene-9 .story-camera { transform: translate(-1462px, -363px) scale(2.562); }
+        body.story-scene-10 .story-camera,
+        body.story-scene-11 .story-camera { transform: translate(-1629px, -751px) scale(2.199); }
+        body.story-scene-12 .story-camera { transform: translate(-116px, -1012px) scale(2.16); }
+        body.story-scene-13 .story-camera { transform: translate(-116px, -1738px) scale(2.874); }
 
         .story-art-layer,
         .story-frame-layer,
@@ -382,6 +642,7 @@
 
         .story-copy {
             flex: 0 1 auto;
+            align-self: stretch;
             min-width: 0;
             margin: 0;
             overflow-wrap: anywhere;
@@ -459,13 +720,14 @@
         }
 
         body.story-transitioning .story-camera,
-        body.story-transitioning .story-banner,
         body.story-transitioning .burn-layer,
-        body.story-transitioning .story-art,
-        body.story-transitioning .story-frame,
         body.story-transitioning .story-copy,
         body.story-transitioning .story-arrow {
-            transition: transform 1.2s cubic-bezier(0.55, 0, 0.45, 1), opacity 1.2s cubic-bezier(0.55, 0, 0.45, 1), filter 1.2s cubic-bezier(0.55, 0, 0.45, 1);
+            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1), opacity var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1), filter var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+        }
+
+        body.story-transitioning .story-banner {
+            opacity: 1;
         }
 
         body.story-scene-2 .story-art-1,
@@ -508,6 +770,32 @@
         .story-copy.is-typing { 
             opacity: 1;
         }
+
+        body[class*="story-scene-"] .story-art:not(.is-current),
+        body[class*="story-scene-"] .story-frame:not(.is-current),
+        body[class*="story-scene-"] .story-copy:not(.is-current) {
+            display: block;
+            visibility: visible;
+        }
+
+        body.story-transitioning .story-art,
+        body.story-transitioning .story-frame {
+            transition: opacity var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+        }
+
+        body[class*="story-scene-"] .story-art.is-current,
+        body[class*="story-scene-"] .story-frame.is-current {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+            z-index: 2;
+        }
+
+        body[class*="story-scene-"] .story-art.is-leaving,
+        body[class*="story-scene-"] .story-frame.is-leaving {
+            opacity: 1;
+            z-index: 1;
+        }
         body.story-scene-3 .story-art-3,
         body.story-scene-3 .story-frame-3,
         body.story-scene-3 .story-copy-3,
@@ -517,6 +805,26 @@
         body.story-scene-4 .story-copy-4,
         body.story-scene-4 .story-arrow-4 {
             opacity: 1;
+        }
+
+        body[class*="story-scene-"] .story-art.is-leaving,
+        body[class*="story-scene-"] .story-frame.is-leaving {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 1;
+        }
+
+        body.story-scene-5 .story-copy:not(.is-current),
+        body.story-scene-6 .story-copy:not(.is-current),
+        body.story-scene-7 .story-copy:not(.is-current),
+        body.story-scene-8 .story-copy:not(.is-current),
+        body.story-scene-9 .story-copy:not(.is-current),
+        body.story-scene-10 .story-copy:not(.is-current),
+        body.story-scene-11 .story-copy:not(.is-current),
+        body.story-scene-12 .story-copy:not(.is-current),
+        body.story-scene-13 .story-copy:not(.is-current) {
+            display: none !important;
         }
 
         .story-copy {
@@ -556,16 +864,7 @@
 
         body.story-scene-2 .story-camera,
         body.story-scene-3 .story-camera,
-        body.story-scene-4 .story-camera,
-        body.story-scene-5 .story-camera,
-        body.story-scene-6 .story-camera,
-        body.story-scene-7 .story-camera,
-        body.story-scene-8 .story-camera,
-        body.story-scene-9 .story-camera,
-        body.story-scene-10 .story-camera,
-        body.story-scene-11 .story-camera,
-        body.story-scene-12 .story-camera,
-        body.story-scene-13 .story-camera {
+        body.story-scene-4 .story-camera {
             transform: none;
         }
 
@@ -596,24 +895,17 @@
             margin-left: 0;
         }
 
-        body.story-scene-5 .story-art-5,
-        body.story-scene-6 .story-art-6,
-        body.story-scene-7 .story-art-7,
-        body.story-scene-8 .story-art-8,
-        body.story-scene-9 .story-art-9,
-        body.story-scene-10 .story-art-10,
-        body.story-scene-11 .story-art-11,
-        body.story-scene-12 .story-art-12,
-        body.story-scene-13 .story-art-13 {
-            box-shadow: none;
+        body.story-scene-5 .story-banner,
+        body.story-scene-6 .story-banner,
+        body.story-scene-7 .story-banner,
+        body.story-scene-8 .story-banner,
+        body.story-scene-9 .story-banner,
+        body.story-scene-10 .story-banner,
+        body.story-scene-11 .story-banner,
+        body.story-scene-12 .story-banner,
+        body.story-scene-13 .story-banner {
             position: absolute;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            object-position: center;
-            z-index: 1;
-            background: #271d13;
+            z-index: 5;
             box-shadow: none;
         }
 
