@@ -4,7 +4,7 @@
         let currentScene = 1;
         let isAnimating = false;
 
-        const maxScene = 13;
+        const maxScene = 15;
         const copyByScene = [...document.querySelectorAll('.story-copy')].reduce((copies, copy) => {
             const scene = Number(copy.className.match(/story-copy-(\d+)/)[1]);
             copies[scene] = copy;
