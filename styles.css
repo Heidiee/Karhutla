@@ -494,13 +494,34 @@
             object-position: center;
         }
 
+        body.story-scene-6 .story-world,
+        body.story-scene-7 .story-world,
+        body.story-scene-8 .story-world,
+        body.story-scene-9 .story-world,
+        body.story-scene-10 .story-world,
+        body.story-scene-11 .story-world,
+        body.story-scene-12 .story-world,
+        body.story-scene-13 .story-world,
+        body.story-scene-14 .story-world,
+        body.story-scene-15 .story-world {
+            position: absolute;
+            inset: auto;
+            width: 1440px;
+            height: 1018px;
+            object-fit: fill;
+            object-position: 0 0;
+        }
+
         body.story-transitioning.story-full-motion .story-camera,
         body.zoom-4-5 .story-camera,
         body.zoom-5-4 .story-camera {
             transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
         }
 
-        body.story-scene-5 .story-camera,
+        body.story-scene-5 .story-camera {
+            transform: translate(0px, 0px) scale(1.005);
+        }
+
         body.story-scene-6 .story-camera,
         body.story-scene-7 .story-camera,
         body.story-scene-8 .story-camera,
@@ -511,19 +532,8 @@
         body.story-scene-13 .story-camera,
         body.story-scene-14 .story-camera,
         body.story-scene-15 .story-camera {
-            transform: translate(0px, 0px) scale(1.005);
+            transform: translate(var(--cam-x, 0px), var(--cam-y, 0px)) scale(var(--cam-s, 1));
         }
-
-        body.story-scene-6 .story-camera { transform: translate(-1px, -980px) scale(1.777); }
-        body.story-scene-7 .story-camera { transform: translate(-1000px, -980px) scale(1.777); }
-        body.story-scene-8 .story-camera { transform: translate(-673px, -170px) scale(1.777); }
-        body.story-scene-9 .story-camera { transform: translate(-1462px, -363px) scale(2.562); }
-        body.story-scene-10 .story-camera,
-        body.story-scene-11 .story-camera { transform: translate(-1629px, -751px) scale(2.199); }
-        body.story-scene-12 .story-camera { transform: translate(-116px, -1012px) scale(2.16); }
-        body.story-scene-13 .story-camera { transform: translate(-116px, -1738px) scale(2.874); }
-        body.story-scene-15 .story-camera { transform: translate(-36px, 0px) scale(1.5); }
-        body.story-scene-14 .story-camera { transform: translate(-1000px, -233px) scale(2.874); }
 
         body.story-scene-13 .story-world,
         body.story-scene-14 .story-world,
@@ -627,6 +637,31 @@
             height: 830px;
             object-fit: cover;
             box-shadow: 16.894px 67.578px 33.789px rgba(0, 0, 0, 0.25);
+        }
+
+        body.story-scene-1 .story-art,
+        body.story-scene-2 .story-art,
+        body.story-scene-3 .story-art,
+        body.story-scene-4 .story-art {
+            z-index: 1;
+        }
+
+        body.story-scene-1 .story-frame,
+        body.story-scene-2 .story-frame,
+        body.story-scene-3 .story-frame,
+        body.story-scene-4 .story-frame {
+            z-index: 2;
+        }
+
+        body.story-scene-4 .story-art-4 {
+            box-shadow: 0 0 37px 49px rgba(255, 81, 0, 0.51);
+        }
+
+        body.story-scene-1 .story-art,
+        body.story-scene-2 .story-art,
+        body.story-scene-3 .story-art,
+        body.story-scene-4 .story-art {
+            will-change: opacity, transform;
         }
 
         .story-frame {
@@ -769,6 +804,10 @@
             display: none;
         }
 
+        .story-camera.is-resizing {
+            transition: none !important;
+        }
+
         body.story-transitioning .story-camera,
         body.story-transitioning .burn-layer,
         body.story-transitioning .story-copy,
@@ -831,6 +870,10 @@
         body.story-transitioning .story-art,
         body.story-transitioning .story-frame {
             transition: opacity var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        body.story-scene-4.story-transitioning .story-art-4 {
+            transition-duration: 2000ms;
         }
 
         body[class*="story-scene-"] .story-art.is-current,

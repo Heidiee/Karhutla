@@ -12,6 +12,13 @@
         }, {});
 
         const SCENE_MS = 1200;
+        const designWidth = 1440;
+        const designHeight = 1018;
+        const cameraKeyframes = {
+            6: [-1, -980, 1.777], 7: [-1000, -980, 1.777], 8: [-673, -170, 1.777],
+            9: [-1462, -363, 2.562], 10: [-1629, -751, 2.199], 11: [-1629, -751, 2.199],
+            12: [-116, -1012, 2.16], 13: [-116, -1738, 2.874], 14: [-1000, -233, 2.874], 15: [-36, 0, 1.5]
+        };
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
         let typewriterRun = 0;
         const fireSound = document.getElementById('fire-sound');
@@ -35,7 +42,8 @@
             if (!fireSound) return;
             if (scene >= 4) {
                 fireSound.volume = fireSound.volume || 0;
-                fireSound.play().then(() => fadeFireSound(1)).catch(() => {});
+                const playRequest = fireSound.play();
+                if (playRequest) playRequest.then(() => fadeFireSound(1)).catch((error) => console.warn('Fire sound could not start:', error));
             } else if (currentScene >= 4 && animate) {
                 fadeFireSound(0);
                 window.setTimeout(() => {
@@ -85,6 +93,37 @@
             if (pageId === 'home-page') window.scrollTo(0, 0);
         };
 
+        const applyCamera = (scene, immediate = false) => {
+            const frame = cameraKeyframes[scene];
+            const camera = document.querySelector('.story-camera');
+            if (!frame || !camera) {
+                camera?.style.removeProperty('--cam-x');
+                camera?.style.removeProperty('--cam-y');
+                camera?.style.removeProperty('--cam-s');
+                return;
+            }
+            const scale = Math.max(innerWidth / designWidth, innerHeight / designHeight);
+            const offsetX = (innerWidth - designWidth * scale) / 2;
+            const offsetY = (innerHeight - designHeight * scale) / 2;
+            const [x, y, s] = frame;
+            const scaled = s * scale;
+            const tx = Math.max(innerWidth - designWidth * scaled, Math.min(0, x * scale + offsetX));
+            const ty = Math.max(innerHeight - designHeight * scaled, Math.min(0, y * scale + offsetY));
+            if (immediate) {
+                camera.classList.add('is-resizing');
+                requestAnimationFrame(() => requestAnimationFrame(() => camera.classList.remove('is-resizing')));
+            }
+            camera.style.setProperty('--cam-x', `${tx}px`);
+            camera.style.setProperty('--cam-y', `${ty}px`);
+            camera.style.setProperty('--cam-s', scaled);
+        };
+
+        let resizeFrame = 0;
+        window.addEventListener('resize', () => {
+            cancelAnimationFrame(resizeFrame);
+            resizeFrame = requestAnimationFrame(() => applyCamera(currentScene, true));
+        });
+
         const setScene = (scene, pushHistory = true, animate = true, preserveScroll = window.scrollY) => {
             if (scene === currentScene && story.classList.contains('is-active') && animate) return;
             const previousScene = currentScene;
@@ -101,6 +140,7 @@
                 copy.textContent = '';
             });
             currentScene = scene;
+            applyCamera(scene);
             updateFireSound(scene, animate);
             if ((scene < 5 || isZoomForward || isZoomBack) && animate && !reducedMotion.matches) {
                 const run = ++typewriterRun;
@@ -165,6 +205,17 @@
                 }, SCENE_MS + 100);
             }
         };
+
+        const startFireSoundFromGesture = () => {
+            if (currentScene < 4 || !fireSound) return;
+            fireSound.volume = fireSound.volume || 0;
+            const playRequest = fireSound.play();
+            if (playRequest) {
+                playRequest.then(() => fadeFireSound(1)).catch((error) => console.warn('Fire sound could not start:', error));
+            }
+        };
+
+        document.addEventListener('pointerdown', startFireSoundFromGesture);
 
         document.querySelector('[data-go-back]')?.addEventListener('click', () => {
             if (currentScene > 1 && !isAnimating) {
