@@ -94,8 +94,11 @@
             display: flex;
             width: 24.65%;
             flex-direction: column;
+            align-items: flex-start;
             gap: clamp(15px, 2.08vw, 30px);
             padding: clamp(7px, 0.694vw, 10px) clamp(14px, 1.39vw, 20px);
+            border-top: 0.5px solid #DF8182;
+            border-bottom: 0.5px solid #DF8182;
             background: rgba(255, 255, 255, 0.04);
         }
 
@@ -105,17 +108,20 @@
             align-items: flex-start;
             justify-content: space-between;
             flex: 0 0 auto;
-            height: clamp(6px, 0.625vw, 9px);
+            height: 9px;
         }
 
         .fasteners img {
             display: block;
-            width: clamp(6px, 0.625vw, 9px);
-            height: clamp(6px, 0.625vw, 9px);
+            width: 9px;
+            height: 9px;
         }
 
         .caption-copy {
-            width: 100%;
+            display: flex;
+            width: 149px;
+            flex-direction: column;
+            align-items: flex-start;
             overflow-wrap: anywhere;
         }
 
