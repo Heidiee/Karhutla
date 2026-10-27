@@ -14,6 +14,39 @@
         const SCENE_MS = 1200;
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
         let typewriterRun = 0;
+        const fireSound = document.getElementById('fire-sound');
+        const MUSIC_FADE_MS = 1200;
+        let musicFadeTimer;
+
+        const fadeFireSound = (targetVolume, duration = MUSIC_FADE_MS) => {
+            if (!fireSound) return;
+            window.clearInterval(musicFadeTimer);
+            const startVolume = fireSound.volume;
+            const startedAt = performance.now();
+            const step = () => {
+                const progress = Math.min((performance.now() - startedAt) / duration, 1);
+                fireSound.volume = startVolume + (targetVolume - startVolume) * progress;
+                if (progress < 1) musicFadeTimer = window.setTimeout(step, 50);
+            };
+            step();
+        };
+
+        const updateFireSound = (scene, animate) => {
+            if (!fireSound) return;
+            if (scene >= 4) {
+                fireSound.volume = fireSound.volume || 0;
+                fireSound.play().then(() => fadeFireSound(1)).catch(() => {});
+            } else if (currentScene >= 4 && animate) {
+                fadeFireSound(0);
+                window.setTimeout(() => {
+                    if (currentScene < 4) fireSound.pause();
+                }, MUSIC_FADE_MS);
+            } else {
+                fireSound.pause();
+                fireSound.currentTime = 0;
+                fireSound.volume = 0;
+            }
+        };
 
         const typeSceneCopy = (scene) => {
             const run = ++typewriterRun;
@@ -68,6 +101,7 @@
                 copy.textContent = '';
             });
             currentScene = scene;
+            updateFireSound(scene, animate);
             if ((scene < 5 || isZoomForward || isZoomBack) && animate && !reducedMotion.matches) {
                 const run = ++typewriterRun;
                 window.setTimeout(() => {

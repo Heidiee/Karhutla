@@ -174,7 +174,7 @@
             opacity: 0;
             transform: scale(1.14);
             transform-origin: 50% 50%;
-            transition: opacity 1.2s cubic-bezier(0.55, 0, 0.45, 1), transform 1.2s cubic-bezier(0.55, 0, 0.45, 1);
+            transition: opacity 1.2s cubic-bezier(0.85, 0, 0.15, 1), transform 1.2s cubic-bezier(0.85, 0, 0.15, 1);
             pointer-events: none;
         }
 
@@ -184,7 +184,7 @@
         }
 
         body.home-to-story .story-canvas {
-            animation: home-to-story-canvas 1.2s cubic-bezier(0.55, 0, 0.45, 1) both;
+            animation: home-to-story-canvas 1.2s cubic-bezier(0.85, 0, 0.15, 1) both;
         }
 
         @keyframes home-to-story-canvas {
@@ -247,7 +247,12 @@
             inset: 0;
             transform-origin: 0 0;
             will-change: transform;
-            transition: transform 1.2s cubic-bezier(0.55, 0, 0.45, 1);
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        body.story-full-motion .story-camera {
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
+            will-change: transform;
         }
 
         .story-banner {
@@ -258,12 +263,16 @@
             opacity: 1;
         }
 
+        body.story-full-motion.story-transitioning .story-banner {
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1), opacity var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1), height var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
         body.story-transitioning .story-world { 
             opacity: 1;
         }
 
         body.story-transitioning .story-world { 
-            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
         }
 
         body.fire-13-14 .story-world,
@@ -317,12 +326,12 @@
         body.zoom-4-5 .story-camera {
             transform: scale(1.233);
             transform-origin: 720px 512px;
-            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
             will-change: transform;
         }
 
         body.zoom-4-5 .story-frame-4 {
-            animation: frame-open var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1) both;
+            animation: frame-open var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1) both;
             will-change: opacity;
         }
 
@@ -352,12 +361,12 @@
         body.zoom-5-4 .story-camera {
             transform: scale(1);
             transform-origin: 720px 512px;
-            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
             will-change: transform;
         }
 
         body.zoom-5-4 .story-frame-4 {
-            animation: frame-reveal var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1) both;
+            animation: frame-reveal var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1) both;
             will-change: opacity;
         }
 
@@ -483,6 +492,12 @@
             height: 100vh;
             object-fit: cover;
             object-position: center;
+        }
+
+        body.story-transitioning.story-full-motion .story-camera,
+        body.zoom-4-5 .story-camera,
+        body.zoom-5-4 .story-camera {
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
         }
 
         body.story-scene-5 .story-camera,
@@ -758,7 +773,7 @@
         body.story-transitioning .burn-layer,
         body.story-transitioning .story-copy,
         body.story-transitioning .story-arrow {
-            transition: transform var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1), opacity var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1), filter var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+            transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1), opacity var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1), filter var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
         }
 
         body.story-transitioning .story-banner {
@@ -815,7 +830,7 @@
 
         body.story-transitioning .story-art,
         body.story-transitioning .story-frame {
-            transition: opacity var(--scene-ms) cubic-bezier(0.55, 0, 0.45, 1);
+            transition: opacity var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
         }
 
         body[class*="story-scene-"] .story-art.is-current,
