@@ -27,7 +27,7 @@
 
         const fadeFireSound = (targetVolume, duration = MUSIC_FADE_MS) => {
             if (!fireSound) return;
-            window.clearInterval(musicFadeTimer);
+            window.clearInterval(amusicFadeTimer);
             const startVolume = fireSound.volume;
             const startedAt = performance.now();
             const step = () => {
