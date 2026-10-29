@@ -1120,6 +1120,41 @@
             left: 540px;
         }
 
+        .scene10-mask {
+            position: absolute;
+            top: 490px;
+            left: 1595px;
+            width: 160px;
+            height: 167px;
+            z-index: 4;
+            display: none;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .scene10-mask img {
+            position: absolute;
+            top: -40.94%;
+            left: 0;
+            width: 172.03%;
+            height: 140.94%;
+            max-width: none;
+        }
+
+        body.story-scene-10 .scene10-mask,
+        body.story-scene-11 .scene10-mask {
+            display: block;
+        }
+
+        body.story-scene-10 .story-banner,
+        body.story-scene-11 .story-banner {
+            top: 341px;
+            left: 454px;
+            width: 276px;
+            transform: none;
+            align-items: flex-end;
+        }
+
         .scene9-image-banner {
             position: absolute;
             top: calc(50% + 102px);
