@@ -16,6 +16,7 @@
 
 <body>
     <audio id="fire-sound" src="music/Fire_sound.wav" loop preload="auto" aria-hidden="true"></audio>
+    <audio id="narration" preload="metadata" aria-hidden="true"></audio>
     <main id="home-page">
         <section class="showcase" aria-label="2026 Kalimantan wildfires documentary">
             <div class="picture-frame" aria-hidden="true">A
@@ -141,12 +142,17 @@
                 <p class="story-copy story-copy-15"
                     data-full-text="Now I hear people want to plant even more palms on the burned land. Some important people say, ‘Palms are trees too.’ But a palm plantation isn’t a forest. It’s rows of one tree, with no fruit for the orangutans, and no wet ground to protect us.">
                 </p>
-                <div class="story-pagination">
-                    <button class="story-pager story-pager-back" type="button" data-go-back
-                        aria-label="Previous scene"><img src="assets/arrow-backward.svg" alt=""></button>
-                    <span class="story-page-number">1</span>
-                    <button class="story-pager story-pager-forward" type="button" data-go-to="scene-2"
-                        aria-label="Continue to the next scene"><img src="assets/arrow-forward.svg" alt=""></button>
+                <div class="story-controls">
+                    <button class="narration-toggle" type="button" aria-label="Mute narration">
+                        <img src="assets/narration-volume-on.svg" alt="">
+                    </button>
+                    <div class="story-pagination">
+                        <button class="story-pager story-pager-back" type="button" data-go-back
+                            aria-label="Previous scene"><img src="assets/arrow-backward.svg" alt=""></button>
+                        <span class="story-page-number">1</span>
+                        <button class="story-pager story-pager-forward" type="button" data-go-to="scene-2"
+                            aria-label="Continue to the next scene"><img src="assets/arrow-forward.svg" alt=""></button>
+                    </div>
                 </div>
             </div>
             <div class="scene9-image-banner" aria-label="Images showing wildfire smoke across Southeast Asia">

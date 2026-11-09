@@ -32,12 +32,129 @@ const cameraKeyframes = {
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let typewriterRun = 0;
 const fireSound = document.getElementById("fire-sound");
+const narration = document.getElementById("narration");
+const narrationToggle = document.querySelector(".narration-toggle");
+const narrationFiles = [
+  "narration_scene1.mp4",
+  "narration_scene2.mp4",
+  "narration_scene3.mp4",
+  "narration_scene4.mp4",
+  "narrative_scene5.mp4",
+  "narrative_scene6.mp4",
+  "narration_scene7.mp4",
+  "narration_scene8.mp4",
+  "narration_scene9.mp4",
+  "narrative_scene10.mp4",
+  "narrative_scene11.mp4",
+  "narration_scene12.mp4",
+  "narration_scene13.mp4",
+  "narration_scene14.mp4",
+  "narrative_scene15.mp4",
+];
+let narrationMuted = false;
+let narrationNeedsGesture = false;
+let narrationRequest = 0;
+let narrationAudioContext;
+let narrationAmplificationUnavailable = false;
+
+const amplifyNarration = () => {
+  if (narrationAmplificationUnavailable) return;
+  if (!narrationAudioContext) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    try {
+      const context = new AudioContext();
+      const gain = context.createGain();
+      gain.gain.value = 1.2;
+      gain.connect(context.destination);
+      context.createMediaElementSource(narration).connect(gain);
+      narrationAudioContext = context;
+    } catch (error) {
+      narrationAmplificationUnavailable = true;
+      console.warn("Narration amplification is unavailable:", error);
+      return;
+    }
+  }
+  if (
+    narrationAudioContext.state === "suspended" &&
+    (!navigator.userActivation || navigator.userActivation.hasBeenActive)
+  ) {
+    narrationAudioContext.resume().then(() => {
+      if (!narrationMuted && story.classList.contains("is-active")) {
+        narrationNeedsGesture = false;
+        narrationToggle.setAttribute("aria-label", "Mute narration");
+      }
+    }).catch((error) => {
+      console.warn("Narration audio could not resume:", error);
+    });
+  }
+};
+
+const playNarration = () => {
+  if (narrationMuted || !story.classList.contains("is-active")) return;
+  amplifyNarration();
+  const request = ++narrationRequest;
+  narrationNeedsGesture = !!narrationAudioContext && narrationAudioContext.state !== "running";
+  narrationToggle.setAttribute("aria-label", narrationNeedsGesture ? "Play narration" : "Mute narration");
+  narration.play().then(() => {
+    if (request !== narrationRequest || !narrationNeedsGesture) return;
+    if (!narrationAudioContext || narrationAudioContext.state === "running") {
+      narrationNeedsGesture = false;
+      narrationToggle.setAttribute("aria-label", "Mute narration");
+    } else {
+      narration.pause();
+    }
+  }).catch((error) => {
+    if (request !== narrationRequest) return;
+    if (error.name === "NotAllowedError") {
+      narrationNeedsGesture = true;
+      narrationToggle.setAttribute("aria-label", "Play narration");
+    } else if (error.name !== "AbortError") {
+      console.warn("Narration could not start:", error);
+    }
+  });
+};
+
+const stopNarration = () => {
+  narrationRequest++;
+  narrationNeedsGesture = false;
+  narration.pause();
+};
+
+const setNarrationScene = (scene) => {
+  stopNarration();
+  narration.src = `narration/${narrationFiles[scene - 1]}`;
+  narration.load();
+  playNarration();
+};
+
+narrationToggle.addEventListener("click", () => {
+  if (narrationNeedsGesture && !narrationMuted) {
+    playNarration();
+    return;
+  }
+  narrationMuted = !narrationMuted;
+  narrationToggle.setAttribute("aria-label", narrationMuted ? "Unmute narration" : "Mute narration");
+  narrationToggle.querySelector("img").src = narrationMuted
+    ? "assets/narration-volume-off.svg"
+    : "assets/narration-volume-on.svg";
+  if (narrationMuted) stopNarration();
+  else playNarration();
+});
+
+document.addEventListener("pointerdown", (event) => {
+  if (!narrationMuted && story.classList.contains("is-active"))
+    amplifyNarration();
+  if (narrationNeedsGesture && !event.target.closest(".narration-toggle"))
+    playNarration();
+});
+
 const MUSIC_FADE_MS = 1200;
 let musicFadeTimer;
 
 const fadeFireSound = (targetVolume, duration = MUSIC_FADE_MS) => {
   if (!fireSound) return;
-  window.clearInterval(amusicFadeTimer);
+  window.clearTimeout(musicFadeTimer);
   const startVolume = fireSound.volume;
   const startedAt = performance.now();
   const step = () => {
@@ -102,6 +219,7 @@ const setPage = (pageId, pushHistory = true) => {
   const isStory = pageId === "story";
   home.classList.toggle("is-hidden", isStory);
   story.classList.toggle("is-active", isStory);
+  if (!isStory) stopNarration();
   if (pushHistory)
     history.pushState({ pageId }, "", isStory ? "#scene-1" : "#home");
   if (pageId === "home-page") window.scrollTo(0, 0);
@@ -159,6 +277,7 @@ const setScene = (
   )
     return;
   const previousScene = currentScene;
+  const wasStoryActive = story.classList.contains("is-active");
   const isZoomForward =
     previousScene === 4 && scene === 5 && animate && !reducedMotion.matches;
   const isZoomBack =
@@ -235,6 +354,7 @@ const setScene = (
   );
   document.body.classList.toggle("home-to-story", animate && scene === 1);
   setPage("story", false);
+  if (scene !== previousScene || !wasStoryActive) setNarrationScene(scene);
 
   if (isZoomBack && camera) {
     void camera.offsetWidth; // commit the zoomed-in start state

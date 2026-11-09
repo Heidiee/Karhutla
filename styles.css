@@ -749,10 +749,10 @@
             flex-direction: column;
             align-items: flex-end;
             justify-content: center;
-            gap: 0;
+            gap: 10px;
             width: 276px;
             min-height: 0;
-            padding: 10px;
+            padding: 5px;
             border: 5px solid #e9dbc1;
             border-radius: 5px;
             background: #e9dbc1;
@@ -801,6 +801,37 @@
             inset: 8px 52px 8px 15px;
             z-index: 1;
             pointer-events: none;
+        }
+
+        .story-controls {
+            display: flex;
+            width: 100%;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex: 0 0 auto;
+        }
+
+        .narration-toggle {
+            display: flex;
+            width: 24px;
+            height: 24px;
+            flex: 0 0 24px;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .narration-toggle img {
+            display: block;
+        }
+
+        .narration-toggle:focus-visible,
+        .story-pager:focus-visible {
+            outline: 2px solid #756a64;
+            outline-offset: 2px;
         }
 
         .story-pagination {
@@ -945,15 +976,7 @@
             z-index: 1;
         }
 
-        body.story-scene-5 .story-copy:not(.is-current),
-        body.story-scene-6 .story-copy:not(.is-current),
-        body.story-scene-7 .story-copy:not(.is-current),
-        body.story-scene-8 .story-copy:not(.is-current),
-        body.story-scene-9 .story-copy:not(.is-current),
-        body.story-scene-10 .story-copy:not(.is-current),
-        body.story-scene-11 .story-copy:not(.is-current),
-        body.story-scene-12 .story-copy:not(.is-current),
-        body.story-scene-13 .story-copy:not(.is-current) {
+        .story-copy:not(.is-current) {
             display: none !important;
         }
 
@@ -1226,7 +1249,7 @@
             min-height: 0;
             height: auto;
             align-items: flex-end;
-            gap: 0;
+            gap: 10px;
         }
 
         body.story-scene-4 .story-copy-4 {
