@@ -151,38 +151,116 @@ document.addEventListener("pointerdown", (event) => {
 
 const MUSIC_FADE_MS = 1200;
 let musicFadeTimer;
+let fireStopTimer;
+let fireContext;
+let fireGain;
+let fireBufferPromise;
+let fireSource;
+let fireWanted = false;
+let fireRequest = 0;
 
 const fadeFireSound = (targetVolume, duration = MUSIC_FADE_MS) => {
-  if (!fireSound) return;
   window.clearTimeout(musicFadeTimer);
   const startVolume = fireSound.volume;
   const startedAt = performance.now();
   const step = () => {
     const progress = Math.min((performance.now() - startedAt) / duration, 1);
     fireSound.volume = startVolume + (targetVolume - startVolume) * progress;
+    if (fireGain) fireGain.gain.value = fireSound.volume;
     if (progress < 1) musicFadeTimer = window.setTimeout(step, 50);
   };
   step();
 };
 
-const updateFireSound = (scene, animate) => {
+const startFireSound = () => {
+  if (!fireSound || !fireWanted) return;
+  window.clearTimeout(fireStopTimer);
+  if (fireSource) {
+    if (fireContext.state === "suspended") {
+      fireContext.resume().catch((error) => console.warn("Fire sound could not resume:", error));
+    }
+    fadeFireSound(1);
+    return;
+  }
+  const request = ++fireRequest;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const fallback = (error) => {
+    if (request !== fireRequest || !fireWanted) return;
+    if (error) console.warn("Seamless fire loop is unavailable:", error);
+    fireSound.play().then(() => {
+      if (request === fireRequest && fireWanted) fadeFireSound(1);
+      else fireSound.pause();
+    }).catch((playError) => console.warn("Fire sound could not start:", playError));
+  };
+  if (!AudioContext) {
+    fallback();
+    return;
+  }
+  try {
+    if (!fireContext) {
+      fireContext = new AudioContext();
+      fireGain = fireContext.createGain();
+      fireGain.gain.value = fireSound.volume;
+      fireGain.connect(fireContext.destination);
+    }
+    if (fireContext.state === "suspended") {
+      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
+      fireContext.resume().catch(fallback);
+    }
+    if (!fireBufferPromise) {
+      fireBufferPromise = fetch(fireSound.src)
+        .then((response) => {
+          if (!response.ok) throw new Error(`Fire audio request failed: ${response.status}`);
+          return response.arrayBuffer();
+        })
+        .then((data) => fireContext.decodeAudioData(data));
+    }
+    fireBufferPromise.then((buffer) => {
+      if (request !== fireRequest || !fireWanted || fireSource) return;
+      const source = fireContext.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.connect(fireGain);
+      source.start();
+      fireSource = source;
+      fireSound.pause();
+      fadeFireSound(1);
+    }).catch((error) => {
+      fireBufferPromise = null;
+      fallback(error);
+    });
+  } catch (error) {
+    fallback(error);
+  }
+};
+
+const stopFireSound = () => {
+  fireWanted = false;
+  fireRequest++;
+  window.clearTimeout(fireStopTimer);
+  window.clearTimeout(musicFadeTimer);
+  if (fireSource) {
+    fireSource.stop();
+    fireSource.disconnect();
+    fireSource = null;
+  }
+  fireSound.pause();
+  fireSound.currentTime = 0;
+  fireSound.volume = 0;
+  if (fireGain) fireGain.gain.value = 0;
+};
+
+const updateFireSound = (scene, previousScene, animate) => {
   if (!fireSound) return;
   if (scene >= 4) {
-    fireSound.volume = fireSound.volume || 0;
-    const playRequest = fireSound.play();
-    if (playRequest)
-      playRequest
-        .then(() => fadeFireSound(1))
-        .catch((error) => console.warn("Fire sound could not start:", error));
-  } else if (currentScene >= 4 && animate) {
+    fireWanted = true;
+    startFireSound();
+  } else if (previousScene >= 4 && animate && fireWanted) {
+    fireRequest++;
     fadeFireSound(0);
-    window.setTimeout(() => {
-      if (currentScene < 4) fireSound.pause();
-    }, MUSIC_FADE_MS);
+    fireStopTimer = window.setTimeout(stopFireSound, MUSIC_FADE_MS);
   } else {
-    fireSound.pause();
-    fireSound.currentTime = 0;
-    fireSound.volume = 0;
+    stopFireSound();
   }
 };
 
@@ -219,7 +297,17 @@ const setPage = (pageId, pushHistory = true) => {
   const isStory = pageId === "story";
   home.classList.toggle("is-hidden", isStory);
   story.classList.toggle("is-active", isStory);
-  if (!isStory) stopNarration();
+  if (!isStory) {
+    typewriterRun++;
+    document.body.className = document.body.className
+      .replace(/\bstory-scene-\d+\b/g, "")
+      .replace(/\b(?:story-full-motion|story-transitioning|home-to-story|zoom-4-5|zoom-5-4|zoom-5-4-start|burning)\b/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    document.documentElement.classList.remove("story-locked");
+    stopNarration();
+    stopFireSound();
+  }
   if (pushHistory)
     history.pushState({ pageId }, "", isStory ? "#scene-1" : "#home");
   if (pageId === "home-page") window.scrollTo(0, 0);
@@ -298,7 +386,7 @@ const setScene = (
   });
   currentScene = scene;
   applyCamera(scene);
-  updateFireSound(scene, animate);
+  updateFireSound(scene, previousScene, animate);
   if (
     (scene < 5 || isZoomForward || isZoomBack) &&
     animate &&
@@ -418,14 +506,7 @@ const setScene = (
 };
 
 const startFireSoundFromGesture = () => {
-  if (currentScene < 4 || !fireSound) return;
-  fireSound.volume = fireSound.volume || 0;
-  const playRequest = fireSound.play();
-  if (playRequest) {
-    playRequest
-      .then(() => fadeFireSound(1))
-      .catch((error) => console.warn("Fire sound could not start:", error));
-  }
+  if (fireWanted) startFireSound();
 };
 
 document.addEventListener("pointerdown", startFireSoundFromGesture);
@@ -442,13 +523,10 @@ document.querySelectorAll("[data-go-to]").forEach((control) => {
     const target = control.dataset.goTo;
     const scrollPosition = window.scrollY;
     if (target === "scene-1") setScene(1, true, true, scrollPosition);
-    if (target === "scene-2")
-      setScene(
-        Math.min(currentScene + 1, maxScene),
-        true,
-        true,
-        scrollPosition,
-      );
+    if (target === "scene-2") {
+      if (currentScene === maxScene) setPage("home-page");
+      else setScene(currentScene + 1, true, true, scrollPosition);
+    }
   });
 });
 

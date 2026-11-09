@@ -1183,14 +1183,27 @@
             top: calc(50% + 102px);
             left: 50%;
             z-index: 6;
-            display: none;
+            display: flex;
             align-items: center;
             gap: 15px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
             transform: translateX(-50%);
+            transition: opacity var(--scene-ms) ease-in-out, visibility 0s linear var(--scene-ms);
         }
 
         body.story-scene-9 .scene9-image-banner {
-            display: flex;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity var(--scene-ms) ease-in-out, visibility 0s;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .scene9-image-banner {
+                transition: none !important;
+            }
         }
 
         .scene9-image-card {
