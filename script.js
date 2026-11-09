@@ -32,6 +32,7 @@ const cameraKeyframes = {
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let typewriterRun = 0;
 const fireSound = document.getElementById("fire-sound");
+const backgroundMusic = document.getElementById("background-music");
 const narration = document.getElementById("narration");
 const narrationToggle = document.querySelector(".narration-toggle");
 const narrationFiles = [
@@ -150,7 +151,76 @@ document.addEventListener("pointerdown", (event) => {
 });
 
 const MUSIC_FADE_MS = 1200;
-let musicFadeTimer;
+let backgroundMusicFadeTimer;
+let backgroundMusicRequest = 0;
+let backgroundMusicWanted = false;
+let backgroundMusicNeedsGesture = false;
+backgroundMusic.volume = 0;
+
+const fadeBackgroundMusic = (targetVolume, onComplete) => {
+  window.clearTimeout(backgroundMusicFadeTimer);
+  const startVolume = backgroundMusic.volume;
+  const startedAt = performance.now();
+  const step = () => {
+    const progress = Math.min((performance.now() - startedAt) / MUSIC_FADE_MS, 1);
+    backgroundMusic.volume = startVolume + (targetVolume - startVolume) * progress;
+    if (progress < 1) backgroundMusicFadeTimer = window.setTimeout(step, 50);
+    else if (onComplete) onComplete();
+  };
+  step();
+};
+
+const startBackgroundMusic = () => {
+  if (!backgroundMusicWanted) return;
+  window.clearTimeout(backgroundMusicFadeTimer);
+  if (backgroundMusic.ended) backgroundMusic.currentTime = 0;
+  if (!backgroundMusic.paused) {
+    fadeBackgroundMusic(1);
+    return;
+  }
+  const request = ++backgroundMusicRequest;
+  backgroundMusicNeedsGesture = false;
+  backgroundMusic.play().then(() => {
+    if (request === backgroundMusicRequest && backgroundMusicWanted) fadeBackgroundMusic(1);
+  }).catch((error) => {
+    if (request !== backgroundMusicRequest) return;
+    if (error.name === "NotAllowedError") backgroundMusicNeedsGesture = true;
+    else if (error.name !== "AbortError") console.warn("Background music could not start:", error);
+  });
+};
+
+const stopBackgroundMusic = (fade = false) => {
+  backgroundMusicWanted = false;
+  backgroundMusicNeedsGesture = false;
+  backgroundMusicRequest++;
+  const stop = () => {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+    backgroundMusic.volume = 0;
+  };
+  if (fade && !backgroundMusic.paused) fadeBackgroundMusic(0, stop);
+  else {
+    window.clearTimeout(backgroundMusicFadeTimer);
+    stop();
+  }
+};
+
+const updateBackgroundMusic = (scene) => {
+  if (scene >= 4) {
+    if (!backgroundMusicWanted) {
+      backgroundMusicWanted = true;
+      startBackgroundMusic();
+    } else if (backgroundMusicNeedsGesture) {
+      startBackgroundMusic();
+    }
+  } else if (backgroundMusicWanted || !backgroundMusic.paused) {
+    stopBackgroundMusic(true);
+  }
+};
+
+const FIRE_VOLUME = 0.2;
+fireSound.volume = 0;
+let fireFadeTimer;
 let fireStopTimer;
 let fireContext;
 let fireGain;
@@ -160,14 +230,14 @@ let fireWanted = false;
 let fireRequest = 0;
 
 const fadeFireSound = (targetVolume, duration = MUSIC_FADE_MS) => {
-  window.clearTimeout(musicFadeTimer);
+  window.clearTimeout(fireFadeTimer);
   const startVolume = fireSound.volume;
   const startedAt = performance.now();
   const step = () => {
     const progress = Math.min((performance.now() - startedAt) / duration, 1);
     fireSound.volume = startVolume + (targetVolume - startVolume) * progress;
     if (fireGain) fireGain.gain.value = fireSound.volume;
-    if (progress < 1) musicFadeTimer = window.setTimeout(step, 50);
+    if (progress < 1) fireFadeTimer = window.setTimeout(step, 50);
   };
   step();
 };
@@ -179,7 +249,7 @@ const startFireSound = () => {
     if (fireContext.state === "suspended") {
       fireContext.resume().catch((error) => console.warn("Fire sound could not resume:", error));
     }
-    fadeFireSound(1);
+    fadeFireSound(FIRE_VOLUME);
     return;
   }
   const request = ++fireRequest;
@@ -188,7 +258,7 @@ const startFireSound = () => {
     if (request !== fireRequest || !fireWanted) return;
     if (error) console.warn("Seamless fire loop is unavailable:", error);
     fireSound.play().then(() => {
-      if (request === fireRequest && fireWanted) fadeFireSound(1);
+      if (request === fireRequest && fireWanted) fadeFireSound(FIRE_VOLUME);
       else fireSound.pause();
     }).catch((playError) => console.warn("Fire sound could not start:", playError));
   };
@@ -224,7 +294,7 @@ const startFireSound = () => {
       source.start();
       fireSource = source;
       fireSound.pause();
-      fadeFireSound(1);
+      fadeFireSound(FIRE_VOLUME);
     }).catch((error) => {
       fireBufferPromise = null;
       fallback(error);
@@ -238,7 +308,7 @@ const stopFireSound = () => {
   fireWanted = false;
   fireRequest++;
   window.clearTimeout(fireStopTimer);
-  window.clearTimeout(musicFadeTimer);
+  window.clearTimeout(fireFadeTimer);
   if (fireSource) {
     fireSource.stop();
     fireSource.disconnect();
@@ -251,7 +321,6 @@ const stopFireSound = () => {
 };
 
 const updateFireSound = (scene, previousScene, animate) => {
-  if (!fireSound) return;
   if (scene >= 4) {
     fireWanted = true;
     startFireSound();
@@ -307,6 +376,7 @@ const setPage = (pageId, pushHistory = true) => {
     document.documentElement.classList.remove("story-locked");
     stopNarration();
     stopFireSound();
+    stopBackgroundMusic(true);
   }
   if (pushHistory)
     history.pushState({ pageId }, "", isStory ? "#scene-1" : "#home");
@@ -387,6 +457,7 @@ const setScene = (
   currentScene = scene;
   applyCamera(scene);
   updateFireSound(scene, previousScene, animate);
+  updateBackgroundMusic(scene);
   if (
     (scene < 5 || isZoomForward || isZoomBack) &&
     animate &&
@@ -505,11 +576,12 @@ const setScene = (
   }
 };
 
-const startFireSoundFromGesture = () => {
+const startStoryAudioFromGesture = () => {
   if (fireWanted) startFireSound();
+  if (backgroundMusicNeedsGesture) startBackgroundMusic();
 };
 
-document.addEventListener("pointerdown", startFireSoundFromGesture);
+document.addEventListener("pointerdown", startStoryAudioFromGesture);
 
 document.querySelector("[data-go-back]")?.addEventListener("click", () => {
   if (currentScene > 1 && !isAnimating) {
