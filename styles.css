@@ -1627,7 +1627,7 @@
             display: flex;
             gap: 10px;
             pointer-events: auto;
-            transform: translate(var(--cam-x, 0px), var(--cam-y, 0px)) scale(var(--cam-s, 1)) translate(656px, 932px);
+            transform: translate(var(--cam-x, 0px), var(--cam-y, 0px)) scale(var(--cam-s, 1)) translate(720px, 932px) translateX(-50%);
             transform-origin: top left;
         }
 
@@ -1638,7 +1638,7 @@
             background: rgba(253, 253, 253, 0.1);
             color: #fdfdfd;
             font-family: Poppins, sans-serif;
-            font-size: 12px;
+            font-size: 14pt;
             font-weight: 500;
             line-height: normal;
             white-space: nowrap;
