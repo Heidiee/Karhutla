@@ -1362,3 +1362,280 @@
     transition: none !important;
 }
         }
+
+        body.story-scene-16,
+        body.story-scene-17,
+        body.story-scene-18,
+        body.story-scene-19,
+        body.story-scene-20 {
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        body.story-scene-16 .story,
+        body.story-scene-17 .story,
+        body.story-scene-18 .story,
+        body.story-scene-19 .story,
+        body.story-scene-20 .story {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            min-height: 0;
+            background: #0e0101 !important;
+        }
+
+        body.story-scene-16 .story-canvas,
+        body.story-scene-17 .story-canvas,
+        body.story-scene-18 .story-canvas,
+        body.story-scene-19 .story-canvas,
+        body.story-scene-20 .story-canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1440px;
+            height: 1024px;
+            margin-left: 0;
+            transform: none;
+        }
+
+        body.story-scene-16 .story-camera,
+        body.story-scene-17 .story-camera,
+        body.story-scene-18 .story-camera,
+        body.story-scene-19 .story-camera,
+        body.story-scene-20 .story-camera {
+            transform: translate(var(--cam-x, 0px), var(--cam-y, 0px)) scale(var(--cam-s, 1));
+        }
+
+        body.story-scene-16 .story-frame-layer,
+        body.story-scene-17 .story-frame-layer,
+        body.story-scene-18 .story-frame-layer,
+        body.story-scene-19 .story-frame-layer,
+        body.story-scene-20 .story-frame-layer {
+            display: none;
+        }
+
+        body.story-scene-16 .story-camera::before,
+        body.story-scene-17 .story-camera::before,
+        body.story-scene-18 .story-camera::before,
+        body.story-scene-19 .story-camera::before,
+        body.story-scene-20 .story-camera::before {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 61% 34% at 38.4% 23.6%,
+                    rgba(255, 155, 155, 0.1) 0%,
+                    rgba(221, 121, 121, 0.1) 25%,
+                    rgba(186, 87, 88, 0.1) 50%,
+                    rgba(152, 53, 55, 0.1) 75%,
+                    rgba(118, 20, 21, 0.1) 100%),
+                #0e0101;
+            content: "";
+            pointer-events: none;
+        }
+
+        body.story-scene-16 .story-art-1,
+        body.story-scene-16 .story-art-2,
+        body.story-scene-16 .story-art-3,
+        body.story-scene-16 .story-art-4,
+        body.story-scene-17 .story-art-1,
+        body.story-scene-17 .story-art-2,
+        body.story-scene-17 .story-art-3,
+        body.story-scene-17 .story-art-4,
+        body.story-scene-18 .story-art-1,
+        body.story-scene-18 .story-art-2,
+        body.story-scene-18 .story-art-3,
+        body.story-scene-18 .story-art-4,
+        body.story-scene-19 .story-art-1,
+        body.story-scene-19 .story-art-2,
+        body.story-scene-19 .story-art-3,
+        body.story-scene-19 .story-art-4,
+        body.story-scene-20 .story-art-1,
+        body.story-scene-20 .story-art-2,
+        body.story-scene-20 .story-art-3,
+        body.story-scene-20 .story-art-4 {
+            opacity: 0;
+        }
+
+        .story-art-16,
+        .story-art-17,
+        .story-art-18,
+        .story-art-19,
+        .story-art-20 {
+            opacity: 0;
+        }
+
+        .story-art-16,
+        .story-art-19 {
+            top: 121px;
+            left: 415px;
+            width: 755px;
+            height: 755px;
+            box-shadow: none;
+            object-fit: fill;
+        }
+
+        .story-art-17 {
+            top: 121px;
+            left: 453px;
+            width: 717px;
+            height: 702px;
+            box-shadow: none;
+            object-fit: fill;
+        }
+
+        .story-art-18 {
+            top: 121px;
+            left: 453px;
+            width: 717px;
+            height: 726px;
+            box-shadow: none;
+            object-fit: fill;
+        }
+
+        .story-art-20 {
+            top: 260px;
+            left: 610px;
+            width: 251px;
+            height: 503px;
+            box-shadow: none;
+            object-fit: fill;
+        }
+
+        body.story-transitioning.story-scene-16 .story-art.is-leaving,
+        body.story-transitioning.story-scene-17 .story-art.is-leaving,
+        body.story-transitioning.story-scene-18 .story-art.is-leaving,
+        body.story-transitioning.story-scene-19 .story-art.is-leaving,
+        body.story-transitioning.story-scene-20 .story-art.is-leaving {
+            opacity: 0;
+        }
+
+        body.story-scene-16 .story-banner,
+        body.story-scene-17 .story-banner,
+        body.story-scene-18 .story-banner,
+        body.story-scene-19 .story-banner,
+        body.story-scene-20 .story-banner {
+            top: 0;
+            left: 0;
+            width: 1440px;
+            height: 1024px;
+            min-height: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            align-items: stretch;
+            justify-content: flex-start;
+            pointer-events: none;
+            transform: translate(var(--cam-x, 0px), var(--cam-y, 0px)) scale(var(--cam-s, 1));
+            transform-origin: top left;
+        }
+
+        .story-copy-16,
+        .story-copy-17,
+        .story-copy-18,
+        .story-copy-19,
+        .story-copy-20 {
+            position: absolute;
+            top: 864px;
+            left: calc(50% - 399.5px);
+            width: 799px;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: normal;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        body.story-scene-16 .story-controls,
+        body.story-scene-17 .story-controls,
+        body.story-scene-18 .story-controls,
+        body.story-scene-19 .story-controls,
+        body.story-scene-20 .story-controls {
+            display: none;
+        }
+
+        .scene-navigation,
+        .scene20-actions {
+            display: none;
+        }
+
+        body.story-scene-16 .scene-navigation,
+        body.story-scene-17 .scene-navigation,
+        body.story-scene-18 .scene-navigation,
+        body.story-scene-19 .scene-navigation,
+        body.story-scene-20 .scene-navigation {
+            position: fixed;
+            inset: 0 32px;
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .scene-nav-button {
+            display: flex;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(253, 253, 253, 0.12);
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .scene-nav-button img {
+            display: block;
+            width: 24px;
+            height: 24px;
+        }
+
+        .scene-nav-back img {
+            transform: rotate(180deg);
+        }
+
+        .scene-nav-button:focus-visible,
+        .scene20-actions button:focus-visible {
+            outline: 2px solid #fdfdfd;
+            outline-offset: 3px;
+        }
+
+        body.story-scene-20 .scene20-actions {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 6;
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+            transform: translate(var(--cam-x, 0px), var(--cam-y, 0px)) scale(var(--cam-s, 1)) translate(629px, 903px);
+            transform-origin: top left;
+        }
+
+        .scene20-actions button {
+            padding: 2px 8px;
+            border: 0;
+            border-radius: 12px;
+            background: rgba(253, 253, 253, 0.1);
+            color: #fdfdfd;
+            font-family: Poppins, sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: normal;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        body.story-scene-16 .narration-toggle,
+        body.story-scene-17 .narration-toggle,
+        body.story-scene-18 .narration-toggle,
+        body.story-scene-19 .narration-toggle,
+        body.story-scene-20 .narration-toggle {
+            display: none;
+        }

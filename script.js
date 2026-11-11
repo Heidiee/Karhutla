@@ -4,7 +4,7 @@ const pages = ["home-page", "story"];
 let currentScene = 1;
 let isAnimating = false;
 
-const maxScene = 15;
+const maxScene = 20;
 const copyByScene = [...document.querySelectorAll(".story-copy")].reduce(
   (copies, copy) => {
     const scene = Number(copy.className.match(/story-copy-(\d+)/)[1]);
@@ -28,6 +28,11 @@ const cameraKeyframes = {
   13: [-116, -1738, 2.874],
   14: [-1000, -233, 2.874],
   15: [-36, 0, 1.5],
+  16: [0, 0, 1],
+  17: [0, 0, 1],
+  18: [0, 0, 1],
+  19: [0, 0, 1],
+  20: [0, 0, 1],
 };
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let typewriterRun = 0;
@@ -124,7 +129,16 @@ const stopNarration = () => {
 
 const setNarrationScene = (scene) => {
   stopNarration();
-  narration.src = `narration/${narrationFiles[scene - 1]}`;
+  const narrationFile = narrationFiles[scene - 1];
+  narrationToggle.disabled = !narrationFile;
+  if (!narrationFile) {
+    narration.removeAttribute("src");
+    narration.load();
+    narrationToggle.setAttribute("aria-label", "Narration unavailable");
+    return;
+  }
+  narrationToggle.setAttribute("aria-label", "Mute narration");
+  narration.src = `narration/${narrationFile}`;
   narration.load();
   playNarration();
 };
@@ -386,23 +400,31 @@ const setPage = (pageId, pushHistory = true) => {
 const applyCamera = (scene, immediate = false) => {
   const frame = cameraKeyframes[scene];
   const camera = document.querySelector(".story-camera");
+  const canvas = camera?.parentElement;
   if (!frame || !camera) {
     camera?.style.removeProperty("--cam-x");
     camera?.style.removeProperty("--cam-y");
     camera?.style.removeProperty("--cam-s");
+    canvas?.style.removeProperty("--cam-x");
+    canvas?.style.removeProperty("--cam-y");
+    canvas?.style.removeProperty("--cam-s");
     return;
   }
-  const scale = Math.max(innerWidth / designWidth, innerHeight / designHeight);
+  const isIllustratedScene = scene >= 16;
+  const frameHeight = isIllustratedScene ? 1024 : designHeight;
+  const scale = isIllustratedScene
+    ? Math.min(innerWidth / designWidth, innerHeight / frameHeight)
+    : Math.max(innerWidth / designWidth, innerHeight / frameHeight);
   const offsetX = (innerWidth - designWidth * scale) / 2;
-  const offsetY = (innerHeight - designHeight * scale) / 2;
+  const offsetY = (innerHeight - frameHeight * scale) / 2;
   const [x, y, s] = frame;
   const scaled = s * scale;
-  const tx = Math.max(
+  const tx = isIllustratedScene ? offsetX : Math.max(
     innerWidth - designWidth * scaled,
     Math.min(0, x * scale + offsetX),
   );
-  const ty = Math.max(
-    innerHeight - designHeight * scaled,
+  const ty = isIllustratedScene ? offsetY : Math.max(
+    innerHeight - frameHeight * scaled,
     Math.min(0, y * scale + offsetY),
   );
   if (immediate) {
@@ -411,9 +433,11 @@ const applyCamera = (scene, immediate = false) => {
       requestAnimationFrame(() => camera.classList.remove("is-resizing")),
     );
   }
-  camera.style.setProperty("--cam-x", `${tx}px`);
-  camera.style.setProperty("--cam-y", `${ty}px`);
-  camera.style.setProperty("--cam-s", scaled);
+  [camera, canvas].forEach((target) => {
+    target.style.setProperty("--cam-x", `${tx}px`);
+    target.style.setProperty("--cam-y", `${ty}px`);
+    target.style.setProperty("--cam-s", scaled);
+  });
 };
 
 let resizeFrame = 0;
@@ -600,6 +624,19 @@ document.querySelectorAll("[data-go-to]").forEach((control) => {
       else setScene(currentScene + 1, true, true, scrollPosition);
     }
   });
+});
+
+document.querySelectorAll("[data-scene-step]").forEach((control) => {
+  control.addEventListener("click", () => {
+    if (isAnimating) return;
+    const targetScene = currentScene + Number(control.dataset.sceneStep);
+    if (targetScene > maxScene) setPage("home-page", true);
+    else if (targetScene >= 1) setScene(targetScene, true, true);
+  });
+});
+
+document.querySelector("[data-end-documentary]")?.addEventListener("click", () => {
+  if (!isAnimating) setPage("home-page", true);
 });
 
 window.addEventListener("popstate", () => {
