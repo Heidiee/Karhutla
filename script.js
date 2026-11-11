@@ -89,6 +89,8 @@ const amplifyNarration = () => {
       if (!narrationMuted && story.classList.contains("is-active")) {
         narrationNeedsGesture = false;
         narrationToggle.setAttribute("aria-label", "Mute narration");
+        if (!narration.paused && !narration.ended)
+          narrationToggle.classList.add("is-speaking");
       }
     }).catch((error) => {
       console.warn("Narration audio could not resume:", error);
@@ -107,6 +109,8 @@ const playNarration = () => {
     if (!narrationAudioContext || narrationAudioContext.state === "running") {
       narrationNeedsGesture = false;
       narrationToggle.setAttribute("aria-label", "Mute narration");
+      if (!narration.paused && !narrationMuted && story.classList.contains("is-active"))
+        narrationToggle.classList.add("is-speaking");
     } else {
       narration.pause();
     }
@@ -124,8 +128,18 @@ const playNarration = () => {
 const stopNarration = () => {
   narrationRequest++;
   narrationNeedsGesture = false;
+  narrationToggle.classList.remove("is-speaking");
   narration.pause();
 };
+
+narration.addEventListener("playing", () => {
+  if (!narrationMuted && !narrationNeedsGesture && story.classList.contains("is-active"))
+    narrationToggle.classList.add("is-speaking");
+});
+
+["pause", "ended", "waiting", "stalled", "emptied", "error"].forEach((event) => {
+  narration.addEventListener(event, () => narrationToggle.classList.remove("is-speaking"));
+});
 
 const setNarrationScene = (scene) => {
   stopNarration();
@@ -235,7 +249,6 @@ const updateBackgroundMusic = (scene) => {
 const FIRE_VOLUME = 0.2;
 fireSound.volume = 0;
 let fireFadeTimer;
-let fireStopTimer;
 let fireContext;
 let fireGain;
 let fireBufferPromise;
@@ -258,8 +271,9 @@ const fadeFireSound = (targetVolume, duration = MUSIC_FADE_MS) => {
 
 const startFireSound = () => {
   if (!fireSound || !fireWanted) return;
-  window.clearTimeout(fireStopTimer);
   if (fireSource) {
+    fireRequest++;
+    if (!fireSound.paused) fireSound.pause();
     if (fireContext.state === "suspended") {
       fireContext.resume().catch((error) => console.warn("Fire sound could not resume:", error));
     }
@@ -272,7 +286,7 @@ const startFireSound = () => {
     if (request !== fireRequest || !fireWanted) return;
     if (error) console.warn("Seamless fire loop is unavailable:", error);
     fireSound.play().then(() => {
-      if (request === fireRequest && fireWanted) fadeFireSound(FIRE_VOLUME);
+      if (request === fireRequest && fireWanted && !fireSource) fadeFireSound(FIRE_VOLUME);
       else fireSound.pause();
     }).catch((playError) => console.warn("Fire sound could not start:", playError));
   };
@@ -321,8 +335,8 @@ const startFireSound = () => {
 const stopFireSound = () => {
   fireWanted = false;
   fireRequest++;
-  window.clearTimeout(fireStopTimer);
   window.clearTimeout(fireFadeTimer);
+  if (fireGain) fireGain.gain.value = 0;
   if (fireSource) {
     fireSource.stop();
     fireSource.disconnect();
@@ -331,17 +345,12 @@ const stopFireSound = () => {
   fireSound.pause();
   fireSound.currentTime = 0;
   fireSound.volume = 0;
-  if (fireGain) fireGain.gain.value = 0;
 };
 
-const updateFireSound = (scene, previousScene, animate) => {
+const updateFireSound = (scene) => {
   if (scene >= 4) {
     fireWanted = true;
     startFireSound();
-  } else if (previousScene >= 4 && animate && fireWanted) {
-    fireRequest++;
-    fadeFireSound(0);
-    fireStopTimer = window.setTimeout(stopFireSound, MUSIC_FADE_MS);
   } else {
     stopFireSound();
   }
@@ -386,10 +395,11 @@ const setPage = (pageId, pushHistory = true) => {
     typewriterRun++;
     document.body.className = document.body.className
       .replace(/\bstory-scene-\d+\b/g, "")
-      .replace(/\b(?:story-full-motion|story-transitioning|home-to-story|zoom-4-5|zoom-5-4|zoom-5-4-start|burning)\b/g, "")
+      .replace(/\b(?:story-full-motion|story-transitioning|home-to-story|zoom-4-5|zoom-5-4|zoom-5-4-start|zoom-active|burning)\b/g, "")
       .replace(/\s+/g, " ")
       .trim();
     document.documentElement.classList.remove("story-locked");
+    isAnimating = false;
     stopNarration();
     stopFireSound();
     stopBackgroundMusic(true);
@@ -482,7 +492,7 @@ const setScene = (
   });
   currentScene = scene;
   applyCamera(scene);
-  updateFireSound(scene, previousScene, animate);
+  updateFireSound(scene);
   updateBackgroundMusic(scene);
   if (
     (scene < 5 || isZoomForward || isZoomBack) &&
@@ -498,7 +508,7 @@ const setScene = (
   }
   document
     .querySelectorAll(
-      '[class*="story-art-"], [class*="story-frame-"], [class*="story-copy-"]',
+      '.story-art, .story-frame, .story-copy',
     )
     .forEach((layer) => layer.classList.remove("is-current"));
   document
@@ -525,9 +535,9 @@ const setScene = (
     .replace(/\bstory-scene-\d+\b/g, "")
     .replace(/\s+/g, " ")
     .trim();
-  document.body.classList.remove("zoom-4-5", "zoom-5-4", "zoom-5-4-start");
+  document.body.classList.remove("zoom-4-5", "zoom-5-4", "zoom-5-4-start", "zoom-active");
   if (isZoomForward) document.body.classList.add("zoom-4-5");
-  if (isZoomBack) document.body.classList.add("zoom-5-4", "zoom-5-4-start");
+  if (isZoomBack) document.body.classList.add("zoom-5-4");
   if (scene > 1 && scene <= maxScene && !isZoomForward && !isZoomBack)
     document.body.classList.add(`story-scene-${scene}`);
   document.documentElement.classList.toggle("story-locked", scene >= 5);
@@ -541,12 +551,18 @@ const setScene = (
   setPage("story", false);
   if (scene !== previousScene || !wasStoryActive) setNarrationScene(scene);
 
-  if (isZoomBack && camera) {
-    void camera.offsetWidth; // commit the zoomed-in start state
+  if (wasZoom && camera) {
+    if (isZoomBack) {
+      camera.style.transition = "none";
+      void camera.offsetWidth;
+      camera.style.transition = "";
+    }
+    void camera.offsetWidth;
     requestAnimationFrame(() =>
-      requestAnimationFrame(() =>
-        document.body.classList.remove("zoom-5-4-start"),
-      ),
+      requestAnimationFrame(() => {
+        if (currentScene === scene && story.classList.contains("is-active"))
+          document.body.classList.add("zoom-active");
+      }),
     );
   }
 
@@ -577,15 +593,18 @@ const setScene = (
     isAnimating = true;
     window.setTimeout(() => {
       isAnimating = false;
+      if (!story.classList.contains("is-active") || currentScene !== scene) return;
       if (wasZoom && camera) {
         camera.style.transition = "none";
         void camera.offsetWidth;
       }
+      if (wasZoom) document.body.classList.add(`story-scene-${scene}`);
       document.body.classList.remove(
         "story-transitioning",
         "home-to-story",
         "zoom-4-5",
         "zoom-5-4",
+        "zoom-active",
       );
       if (currentScene > 1)
         document.body.classList.add(`story-scene-${currentScene}`);
@@ -594,6 +613,7 @@ const setScene = (
         currentScene >= 5,
       );
       if (wasZoom && camera) {
+        void camera.offsetWidth;
         requestAnimationFrame(() => {
           camera.style.transition = "";
         });
@@ -610,9 +630,9 @@ const startStoryAudioFromGesture = () => {
 document.addEventListener("pointerdown", startStoryAudioFromGesture);
 
 document.querySelector("[data-go-back]")?.addEventListener("click", () => {
-  if (currentScene > 1 && !isAnimating) {
-    setScene(currentScene - 1, true, true);
-  }
+  if (isAnimating) return;
+  if (currentScene === 1) setPage("home-page");
+  else setScene(currentScene - 1, true, true);
 });
 
 document.querySelectorAll("[data-go-to]").forEach((control) => {

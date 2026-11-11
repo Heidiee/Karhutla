@@ -295,6 +295,54 @@
             transition: opacity 200ms ease-out;
         }
 
+        body.zoom-4-5 .story::after,
+        body.zoom-5-4 .story::after {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            background: #000;
+            content: "";
+            opacity: 0;
+            pointer-events: none;
+            animation: scene-4-5-blackout var(--scene-ms) ease-in-out both;
+        }
+
+        @keyframes scene-4-5-blackout {
+            0%, 100% { opacity: 0; }
+            45%, 55% { opacity: 1; }
+        }
+
+        .scene5-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 4;
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            object-position: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body.zoom-4-5 .scene5-transition,
+        body.zoom-5-4 .scene5-transition {
+            display: block;
+            transition: opacity var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        body.zoom-4-5.zoom-active .scene5-transition {
+            opacity: 1;
+        }
+
+        body.zoom-5-4 .scene5-transition {
+            opacity: 1;
+        }
+
+        body.zoom-5-4.zoom-active .scene5-transition {
+            opacity: 0;
+        }
+
         body.zoom-4-5 .story-banner,
         body.zoom-5-4 .story-banner {
             opacity: 0;
@@ -310,6 +358,11 @@
             .story-art,
             .story-frame {
                 transition: none !important;
+            }
+
+            body.zoom-4-5 .story::after,
+            body.zoom-5-4 .story::after {
+                animation: none;
             }
         }
 
@@ -331,10 +384,14 @@
         }
 
         body.zoom-4-5 .story-camera {
-            transform: scale(1.233);
+            transform: scale(1);
             transform-origin: 720px 512px;
             transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
             will-change: transform;
+        }
+
+        body.zoom-4-5.zoom-active .story-camera {
+            transform: scale(1.233);
         }
 
         body.zoom-4-5 .story-frame-4 {
@@ -366,10 +423,14 @@
         }
 
         body.zoom-5-4 .story-camera {
-            transform: scale(1);
+            transform: scale(1.233);
             transform-origin: 720px 512px;
             transition: transform var(--scene-ms) cubic-bezier(0.85, 0, 0.15, 1);
             will-change: transform;
+        }
+
+        body.zoom-5-4.zoom-active .story-camera {
+            transform: scale(1);
         }
 
         body.zoom-5-4 .story-frame-4 {
@@ -556,7 +617,7 @@
         }
 
         body.story-scene-5 .story-camera {
-            transform: translate(0px, 0px) scale(1.005);
+            transform: translate(0px, 0px) scale(1);
         }
 
         body.story-scene-6 .story-camera,
@@ -828,6 +889,21 @@
             display: block;
         }
 
+        .narration-toggle.is-speaking img {
+            animation: narration-speaking 900ms ease-in-out infinite;
+        }
+
+        @keyframes narration-speaking {
+            0%, 100% { transform: scale(1); opacity: 0.75; }
+            50% { transform: scale(1.18); opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .narration-toggle.is-speaking img {
+                animation: none;
+            }
+        }
+
         .narration-toggle:focus-visible,
         .story-pager:focus-visible {
             outline: 2px solid #756a64;
@@ -1065,9 +1141,6 @@
             z-index: 5;
             box-shadow: none;
         }
-
-        body.zoom-4-5 .story-camera { transform: scale(1.233); }
-        body.zoom-5-4 .story-camera { transform: scale(1); }
 
         body.story-scene-2 .story-banner,
         body.story-scene-3 .story-banner,
@@ -1357,10 +1430,6 @@
             .story {
                 min-height: calc((100vw - 40px) * 0.7111);
             }
-            body.zoom-5-4-start .story-camera {
-    transform: scale(1.233) !important;
-    transition: none !important;
-}
         }
 
         body.story-scene-16,
