@@ -359,6 +359,8 @@ const typeSceneCopy = (scene) => {
 
   const words = copy.dataset.fullText.trim().split(/\s+/);
   copy.classList.add("is-typing");
+  const caption = document.querySelector(".scene-caption-copy");
+  if (scene >= 16) caption.dataset.fullText = copy.dataset.fullText;
   let index = 0;
   const typeNext = () => {
     if (run !== typewriterRun) return;
